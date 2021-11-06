@@ -1,6 +1,7 @@
 {
     "require": {
         "symplify/php-config-printer": "^9.4",
-        "symfony/yaml": "^5.3"
+        "symfony/yaml": "^5.3",
+        "sylius/grid-bundle": "dev-master"
     }
 }

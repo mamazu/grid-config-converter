@@ -7,15 +7,22 @@ sylius_grid:
         options:
           class: "%sylius.model.order.class%"
           repository:
-            method: createListQueryBuilder
+            method: myCustomMethod
+            arguments:
+              id: resource.id
+          pagination:
+            fetch_join_collection: false
+            use_output_walkers: false
       sorting:
         number: desc
       fields:
         date:
+          enabled: false
           type: datetime
           label: sylius.ui.date
           path: checkoutCompletedAt
           sortable: checkoutCompletedAt
+          position: 100
           options:
             format: d-m-Y H:i:s
         number:

@@ -1,12 +1,21 @@
+#!/usr/bin/env php
 <?php
 
 include __DIR__."/../vendor/autoload.php";
-include __DIR__."/../src/ConfigConverter.php";
+include __DIR__."/../src/ClassConfigConverter.php";
 
 if(count($argv) < 2) {
-    echo "Usage: bin/config-transformer <file to convert>\n";
+    echo "Usage: bin/config-transformer <file to convert> [grid namespace]\n";
+    echo "\t<file to convert>: must be in the yaml / yml format\n";
+    echo "\t[grid namespace]: (optional) namespace of the grid class that is generated";
+    echo "\n\n";
+    echo "Example: bin/config-transformer order.yaml \"App\\Env\"\n";
     die(1);
 }
 
-$configConverter = new ConfigConverter();
+$configConverter = new ClassConfigConverter();
+if(isset($argv[2])) {
+    $argument = $argv[2];
+    $configConverter->setNamespace($argument);
+}
 $configConverter->convert($argv[1]);
