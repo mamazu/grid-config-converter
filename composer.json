@@ -3,5 +3,8 @@
         "symplify/php-config-printer": "^9.4",
         "symfony/yaml": "^5.3",
         "sylius/grid-bundle": "dev-master"
+    },
+    "autoload": {
+        "Mamazu\\ConfigConverter\\": "src/"
     }
 }

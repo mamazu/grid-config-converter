@@ -4,7 +4,7 @@ Converts a file to the new PHP Syntax.
 ## How to use:
 * Clone the repository
 * `composer install`
-* `bin/config-converter <path>`
+* `bin/config-converter <path> [namespace] [--functional]`
 
 This will print the generated code out to the screen and produce a file that contains the new configuration.
 
@@ -83,7 +83,7 @@ class SyliusAdminOrder extends AbstractGrid
     {
         $gridBuilder->setRepositoryMethod('createListQueryBuilder');
         $gridBuilder->addOrderBy('number', 'desc');
-        $gridBuilder->setLimits(['0' => 30, '1' => 12, '2' => 48]);
+        $gridBuilder->setLimits([30, 12, 48]);
         $gridBuilder->addField(DateTimeField::create('date')->addLabel('sylius.ui.date')->setPath('checkoutCompletedAt')->setSortable(true, 'checkoutCompletedAt')->setOptions(['format' => 'd-m-Y H:i:s']));
         $gridBuilder->addField(TwigField::create('number')->addLabel('sylius.ui.number')->setPath('.')->setSortable(true)->setOptions(['template' => '@SyliusAdmin/Order/Grid/Field/number.html.twig']));
         $gridBuilder->addField(TwigField::create('channel')->addLabel('sylius.ui.channel')->setSortable(true, 'channel.code')->setOptions(['template' => '@SyliusAdmin/Order/Grid/Field/channel.html.twig']));
@@ -98,3 +98,4 @@ class SyliusAdminOrder extends AbstractGrid
 * Check if the output even works.
 * Check to see if there are options that are unhandled. (try to convert more grids)
 * See if the output of the yaml and the php produces the same grid array after being parsed by Sylius
+* Maybe try to optimize the code. Currently, it generates a lot of extra use statements

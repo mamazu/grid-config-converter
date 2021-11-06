@@ -1,21 +1,33 @@
 #!/usr/bin/env php
 <?php
 
-include __DIR__."/../vendor/autoload.php";
-include __DIR__."/../src/ClassConfigConverter.php";
+use Mamazu\ConfigConverter\ClassConfigConverter;
 
-if(count($argv) < 2) {
+require_once __DIR__."/../vendor/autoload.php";
+require_once __DIR__."/../src/ClassConfigConverter.php";
+require_once __DIR__."/../src/GridBuilderCalls.php";
+
+if (count($argv) < 2) {
     echo "Usage: bin/config-transformer <file to convert> [grid namespace]\n";
     echo "\t<file to convert>: must be in the yaml / yml format\n";
-    echo "\t[grid namespace]: (optional) namespace of the grid class that is generated";
+    echo "\t[grid namespace]: (optional) Namespace of the grid class that is generated";
+    echo "\t[--function]: (optional) Generating the functional version of it";
     echo "\n\n";
     echo "Example: bin/config-transformer order.yaml \"App\\Env\"\n";
     die(1);
 }
 
 $configConverter = new ClassConfigConverter();
-if(isset($argv[2])) {
+if (isset($argv[2])) {
     $argument = $argv[2];
-    $configConverter->setNamespace($argument);
+    if ($argument === '--functional') {
+        $configConverter->setFunctional();
+    } else {
+        $configConverter->setNamespace($argument);
+    }
+}
+
+if (isset($argv[3])) {
+    $configConverter->setFunctional();
 }
 $configConverter->convert($argv[1]);
