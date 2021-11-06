@@ -110,7 +110,6 @@ class ClassConfigConverter
         ]));
 
         $resourceClass = $gridConfiguration['driver']['options']['class'];
-        unset($gridConfiguration['driver']['options']['class']);
 
         if (!$this->functional) {
             $className = ucfirst(preg_replace_callback('#_\w#', static fn($a) => strtoupper($a[0][1]), $gridName));

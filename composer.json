@@ -2,9 +2,12 @@
     "require": {
         "symplify/php-config-printer": "^9.4",
         "symfony/yaml": "^5.3",
-        "sylius/grid-bundle": "dev-master"
+        "sylius/grid-bundle": "dev-master",
+        "phpunit/phpunit": "^9.5"
     },
     "autoload": {
-        "Mamazu\\ConfigConverter\\": "src/"
+        "psr-4": {
+            "Mamazu\\ConfigConverter\\": "src/"
+        }
     }
 }

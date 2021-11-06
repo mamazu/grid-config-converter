@@ -84,7 +84,7 @@ class GridBuilderCalls
         return new Expression($gridBuilder);
     }
 
-    private function handleField(Expr $gridBuilder, string $fieldName, array $fieldConfig): Node
+    private function handleField(Expr $gridBuilder, string $fieldName, array $fieldConfig): Expr
     {
         switch ($fieldConfig['type']) {
             case 'datetime':
@@ -102,7 +102,6 @@ class GridBuilderCalls
                     new String_($fieldName),
                     new String_($fieldConfig['options']['template']),
                 ]);
-                unset($fieldConfig['options']['template']);
                 break;
             default:
                 $field = new Node\Expr\StaticCall(new Name('Field'), 'create', [
@@ -208,6 +207,9 @@ class GridBuilderCalls
                 $this->convertValue($configuration['type'])
             ]);
             $this->convertToFunctionCall($field, $configuration, 'label');
+            $this->convertToFunctionCall($field, $configuration, 'icon');
+            $this->convertToFunctionCall($field, $configuration, 'enabled');
+            $this->convertToFunctionCall($field, $configuration, 'position');
             $this->convertToFunctionCall($field, $configuration, 'options');
 
             return $field;
@@ -231,14 +233,6 @@ class GridBuilderCalls
         }
 
         return $field;
-    }
-
-    private function generateUseStatements(array $useStatement): array
-    {
-        return array_map(
-            static fn(string $classToUse) => new Use_([new UseUse(new Name($classToUse))]),
-            $useStatement
-        );
     }
 
     private function handleDriver(Expr $gridBuilder, array $driverConfiguration): Expr
@@ -290,7 +284,7 @@ class GridBuilderCalls
 
     private function convertToFunctionCall(Expr &$field, array &$configuration, string $fieldName): void
     {
-        if (!isset($configuration[$fieldName])) {
+        if (!array_key_exists($fieldName, $configuration)) {
             return;
         }
 

@@ -1,20 +1,5 @@
 sylius_grid:
   grids:
-    sylius_admin_order2:
-      limits: [30, 12, 48]
-      driver:
-        name: doctrine/orm
-        options:
-          class: "%sylius.model.order.class%"
-          repository:
-            method: myCustomMethod
-            arguments:
-              id: resource.id
-          pagination:
-            fetch_join_collection: false
-            use_output_walkers: false
-      sorting:
-        number: desc
     sylius_admin_order:
       limits: [30, 12, 48]
       driver:
