@@ -1,5 +1,9 @@
 # Configuration transformer for the Sylius Grid Bundle
-Converts a file to the new PHP Syntax.
+Converts a yaml configuration file from the [SyliusGridBundle](https://github.com/Sylius/SyliusGridBundle) to the new PHP syntax.
+
+<span style="font-size: 150%; color: red">
+This plugin hasn't been tested yet, use with caution.
+</span>
 
 ## How to use:
 * Clone the repository
