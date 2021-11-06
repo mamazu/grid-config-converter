@@ -1,0 +1,12 @@
+<?php
+
+include __DIR__."/../vendor/autoload.php";
+include __DIR__."/../src/ConfigConverter.php";
+
+if(count($argv) < 2) {
+    echo "Usage: bin/config-transformer <file to convert>\n";
+    die(1);
+}
+
+$configConverter = new ConfigConverter();
+$configConverter->convert($argv[1]);

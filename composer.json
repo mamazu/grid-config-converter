@@ -1,0 +1,6 @@
+{
+    "require": {
+        "symplify/php-config-printer": "^9.4",
+        "symfony/yaml": "^5.3"
+    }
+}
