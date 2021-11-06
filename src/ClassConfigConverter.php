@@ -39,6 +39,7 @@ class ClassConfigConverter
 {
     private ?string $namespace = null;
     private bool $functional = false;
+    private bool $verbose = true;
 
     public function __construct()
     {
@@ -54,6 +55,11 @@ class ClassConfigConverter
     public function setFunctional(): void
     {
         $this->functional = true;
+    }
+
+    public function makeQuiet(): void
+    {
+        $this->verbose = false;
     }
 
     public function convert(string $fileName): void
@@ -78,8 +84,10 @@ class ClassConfigConverter
             $new_content = "<?php\n".$this->prettyPrinter->prettyPrint($phpCode)."\n";
 
             $newFileName = $className.'.php';
-            echo "==============================$newFileName================".PHP_EOL;
-            echo $new_content;
+            if($this->verbose) {
+                echo "==============================$newFileName================".PHP_EOL;
+                echo $new_content;
+            }
             file_put_contents($newFileName, $new_content);
         }
     }
