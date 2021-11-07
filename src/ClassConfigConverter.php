@@ -40,10 +40,11 @@ class ClassConfigConverter
     private ?string $namespace = null;
     private bool $functional = false;
     private bool $verbose = true;
+    private CodeOutputter $codeOutputter;
 
     public function __construct()
     {
-        $this->prettyPrinter = new Standard();
+        $this->codeOutputter = new CodeOutputter();
         $this->gridBuilder = new GridBuilderCalls();
     }
 
@@ -81,7 +82,7 @@ class ClassConfigConverter
          */
         foreach ($allGrids as $gridName => $gridConfiguration) {
             [$className, $phpCode] = $this->handleGrid($gridName, $gridConfiguration);
-            $new_content = "<?php\n".$this->prettyPrinter->prettyPrint($phpCode)."\n";
+            $new_content = $this->codeOutputter->printCode($phpCode);
 
             $newFileName = $className.'.php';
             if($this->verbose) {
