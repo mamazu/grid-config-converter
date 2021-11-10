@@ -1,10 +1,6 @@
 # Configuration transformer for the Sylius Grid Bundle
 Converts a yaml configuration file from the [SyliusGridBundle](https://github.com/Sylius/SyliusGridBundle) to the new PHP syntax.
 
-<span style="font-size: 150%; color: red">
-This plugin hasn't been tested yet, use with caution.
-</span>
-
 ## How to use:
 * Clone the repository
 * `composer install`
@@ -99,7 +95,7 @@ class SyliusAdminOrder extends AbstractGrid
 ```
 
 ## Todo
-* Check if the output even works.
-* Check to see if there are options that are unhandled. (try to convert more grids)
-* See if the output of the yaml and the php produces the same grid array after being parsed by Sylius
-* Maybe try to optimize the code. Currently, it generates a lot of extra use statements
+[x] Check if the output even works.
+[x] Check to see if there are options that are unhandled. (try to convert more grids)
+[x] See if the output of the yaml and the php produces the same grid array after being parsed by Sylius
+[ ] Maybe try to optimize the code. Currently, it generates a lot of extra use statements
