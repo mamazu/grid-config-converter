@@ -81,15 +81,54 @@ class SyliusAdminOrder extends AbstractGrid
     }
     public function buildGrid(GridBuilderInterface $gridBuilder) : void
     {
-        $gridBuilder->setRepositoryMethod('createListQueryBuilder');
-        $gridBuilder->addOrderBy('number', 'desc');
-        $gridBuilder->setLimits([30, 12, 48]);
-        $gridBuilder->addField(DateTimeField::create('date')->addLabel('sylius.ui.date')->setPath('checkoutCompletedAt')->setSortable(true, 'checkoutCompletedAt')->setOptions(['format' => 'd-m-Y H:i:s']));
-        $gridBuilder->addField(TwigField::create('number')->addLabel('sylius.ui.number')->setPath('.')->setSortable(true)->setOptions(['template' => '@SyliusAdmin/Order/Grid/Field/number.html.twig']));
-        $gridBuilder->addField(TwigField::create('channel')->addLabel('sylius.ui.channel')->setSortable(true, 'channel.code')->setOptions(['template' => '@SyliusAdmin/Order/Grid/Field/channel.html.twig']));
-        $gridBuilder->addField(Filter::fromNameAndType('number', 'string')->addLabel('sylius.ui.number'));
-        $gridBuilder->addField(Filter::fromNameAndType('shipping_method', 'entity')->addLabel('sylius.ui.shipping_method')->setOptions(['fields' => ['0' => 'shipments.method']])->setFormOptions(['class' => '%sylius.model.shipping_method.class%']));
-        $gridBuilder->addActionGroup(ItemActionGroup::create(ShowAction::create()));
+        $gridBuilder
+            ->setDriver('doctrine/orm')
+            ->setRepositoryMethod('createListQueryBuilder')
+            ->setDriverOption('class', '%sylius.model.order.class%')
+            ->addOrderBy('number', 'desc')
+            ->setLimits([
+                30,
+                12,
+                48,
+            ])
+            ->addField(
+                DateTimeField::create('date')
+                ->setLabel('sylius.ui.date')
+                ->setPath('checkoutCompletedAt')
+                ->setSortable(true, 'checkoutCompletedAt')
+                ->setOptions([
+                    'format' => 'd-m-Y H:i:s',
+                ])
+            )
+            ->addField(
+                TwigField::create('number', '@SyliusAdmin/Order/Grid/Field/number.html.twig')
+                ->setLabel('sylius.ui.number')
+                ->setPath('.')
+                ->setSortable(true)
+                ->setOptions([
+                    'template' => '@SyliusAdmin/Order/Grid/Field/number.html.twig',
+                ])
+            )
+            ->addFilter(
+                Filter::create('number', 'string')
+                ->setLabel('sylius.ui.number')
+            )
+            ->addFilter(
+                Filter::create('shipping_method', 'entity')
+                ->setLabel('sylius.ui.shipping_method')
+                ->setOptions([
+                    'fields' => [
+                        'shipments.method',
+                    ],
+                ])
+                ->setFormOptions([
+                    'class' => '%sylius.model.shipping_method.class%',
+                ])
+            )
+            ->addActionGroup(
+                ItemActionGroup::create(ShowAction::create())
+            )
+        ;
     }
 }
 ```

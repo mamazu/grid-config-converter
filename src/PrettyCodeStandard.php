@@ -15,8 +15,30 @@ class PrettyCodeStandard extends Standard
             $this->indent();
         }
 
-        return $this->pDereferenceLhs($node->var) . $this->nl."->" . $this->pObjectProperty($node->name)
-            . '(' . $this->pMaybeMultiline($node->args) . ')';
+        // Prints $var->methodName
+        $methodCall = $this->pDereferenceLhs($node->var) . $this->nl."->" . $this->pObjectProperty($node->name);
+
+        // If the first argument is a static call then we want to print it in multiple lines
+        $firstArgument = $node->args[0]->value ?? null;
+        if($this->unwrapChainedMethodCall($firstArgument) instanceof Expr\StaticCall) {
+            $arguments =  '(' . $this->pCommaSeparatedMultiline($node->args, false) . $this->nl . ')';
+        } else {
+            $arguments =  '(' . $this->pMaybeMultiline($node->args) . ')';
+        }
+
+        return $methodCall . $arguments;
+    }
+
+    private function unwrapChainedMethodCall($methodCall) {
+        if ($methodCall === null || $methodCall instanceof Expr\StaticCall) {
+            return $methodCall;
+        }
+
+        $methodCallRef = $methodCall;
+        while($methodCallRef instanceof Expr\MethodCall) {
+            $methodCallRef = $methodCallRef->var;
+        }
+        return $methodCallRef;
     }
 
     protected function pExpr_Array(Expr\Array_ $node) {
