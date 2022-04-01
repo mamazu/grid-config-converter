@@ -134,7 +134,8 @@ class SyliusAdminOrder extends AbstractGrid
 ```
 
 ## Todo
-[x] Check if the output even works.
-[x] Check to see if there are options that are unhandled. (try to convert more grids)
-[x] See if the output of the yaml and the php produces the same grid array after being parsed by Sylius
-[ ] Maybe try to optimize the code. Currently, it generates a lot of extra use statements
+
+- [x] Check if the output even works.
+- [x] Check to see if there are options that are unhandled. (try to convert more grids)
+- [x] See if the output of the yaml and the php produces the same grid array after being parsed by Sylius
+- [ ] Maybe try to optimize the code. Currently, it generates a lot of extra use statements
