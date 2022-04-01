@@ -68,7 +68,7 @@ use Sylius\Bundle\GridBundle\Builder\ActionGroup\ItemActionGroup;
 use Sylius\Bundle\GridBundle\Builder\ActionGroup\BulkActionGroup;
 use Sylius\Bundle\GridBundle\Builder\Field\DateTimeField;
 use Sylius\Bundle\GridBundle\Builder\Field\StringField;
-use Sylius\Bundle\GridBundle\Builder\Field\TwigFiel;
+use Sylius\Bundle\GridBundle\Builder\Field\TwigField;
 class SyliusAdminOrder extends AbstractGrid
 {
     public static function getName() : string
