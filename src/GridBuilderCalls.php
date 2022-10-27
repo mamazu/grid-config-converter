@@ -30,6 +30,14 @@ class GridBuilderCalls
             unset($gridConfiguration['driver']);
         }
 
+        // Handle extends
+        if (array_key_exists('extends', $gridConfiguration)) {
+            $gridBuilder = new MethodCall($gridBuilder, 'extends', [
+                $this->convertValue($gridConfiguration['extends']),
+            ]);
+            unset($gridConfiguration['extends']);
+        }
+
         // Handle the sorting
         if (array_key_exists('sorting', $gridConfiguration)) {
             foreach ($gridConfiguration['sorting'] as $field => $sorting) {
