@@ -42,6 +42,7 @@ class ClassConfigConverter
     private bool $functional = false;
     private bool $verbose = true;
     private CodeOutputter $codeOutputter;
+    private GridBuilderCalls $gridBuilder;
 
     public function __construct()
     {
@@ -130,8 +131,8 @@ class ClassConfigConverter
                     'extends' => new Identifier('AbstractGrid'),
                     'stmts' => [
                         $this->createStaticFunction('getName', $gridName),
-                        $this->createStaticFunction('getResourceClass', $resourceClass),
                         $this->createGridBuildFunction($gridConfiguration),
+                        $this->createStaticFunction('getResourceClass', $resourceClass),
                     ],
                 ],
                 []
