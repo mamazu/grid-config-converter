@@ -118,7 +118,7 @@ class ClassConfigConverter
             TwigField::class,
         ]));
 
-        $resourceClass = $gridConfiguration['driver']['options']['class'];
+        $resourceClass = $gridConfiguration['driver']['options']['class'] ?? 'To be replaced with the correct class.';
 
         if (!$this->functional) {
             $className = ucfirst(preg_replace_callback('#_\w#', static fn($a) => strtoupper($a[0][1]), $gridName));
