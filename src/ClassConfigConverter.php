@@ -7,6 +7,7 @@ use PhpParser\Node\Expr;
 use PhpParser\Node\Stmt\Expression;
 use PhpParser\Node\Stmt\Return_;
 use PhpParser\PrettyPrinter\Standard;
+use Sylius\Bundle\GridBundle\Builder\ActionGroup\SubItemActionGroup;
 use Sylius\Bundle\GridBundle\Builder\Action\Action;
 use Sylius\Bundle\GridBundle\Builder\Action\DeleteAction;
 use Sylius\Bundle\GridBundle\Builder\Action\ShowAction;
@@ -106,6 +107,7 @@ class ClassConfigConverter
             GridBuilderInterface::class,
             MainActionGroup::class,
             ItemActionGroup::class,
+            SubItemActionGroup::class,
             BulkActionGroup::class,
             GridConfig::class,
             GridBuilder::class,
