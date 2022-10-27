@@ -65,6 +65,7 @@ class GridBuilderCalls
                 $mappings = [
                     'main' => 'MainActionGroup',
                     'item' => 'ItemActionGroup',
+                    'subitem' => 'SubItemActionGroup',
                     'bulk' => 'BulkActionGroup',
                 ];
 
