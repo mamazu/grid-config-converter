@@ -125,6 +125,10 @@ class ClassConfigConverter
 
         $resourceClass = $gridConfiguration['driver']['options']['class'] ?? 'To be replaced with the correct class.';
 
+        if (strpos($resourceClass, '%') !== false || strpos($resourceClass, 'expr:param') !== false) {
+            trigger_error('You are using the parameter based syntax which does not work. Either provide a class directly in the getResourceClass or pass it by the constructor.', E_USER_WARNING);
+        }
+
         if (!$this->functional) {
             $className = ucfirst(preg_replace_callback('#_\w#', static fn($a) => strtoupper($a[0][1]), $gridName));
             $phpNodes[] = new Class_(
