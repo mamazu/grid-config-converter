@@ -90,6 +90,8 @@ class ClassConfigConverter
             if($this->verbose) {
                 echo "==============================$newFileName================".PHP_EOL;
                 echo $new_content;
+            } else {
+                echo "Writing the content to ".realpath($newFileName);
             }
             file_put_contents($newFileName, $new_content);
         }

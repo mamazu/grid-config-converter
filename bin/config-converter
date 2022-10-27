@@ -27,7 +27,12 @@ if (isset($argv[2])) {
     }
 }
 
-if (isset($argv[3])) {
+if (in_array('-q', $argv, true)) {
+    $configConverter->makeQuiet();
+}
+
+if (in_array('--functional', $argv, true)) {
     $configConverter->setFunctional();
 }
+
 $configConverter->convert($argv[1]);
