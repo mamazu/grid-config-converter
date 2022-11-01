@@ -117,6 +117,9 @@ class GridBuilderCalls
         $field = [];
         foreach ($actions as $actionName => $actionConfiguration) {
             switch ($actionConfiguration['type']) {
+                case 'create':
+                    $field[] = new Node\Expr\StaticCall(new Name('CreateAction'), 'create');
+                    break;
                 case 'show':
                     $field[] = new Node\Expr\StaticCall(new Name('ShowAction'), 'create');
                     break;

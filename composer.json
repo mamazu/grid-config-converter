@@ -1,9 +1,9 @@
 {
     "require": {
-        "symplify/php-config-printer": "^9.4",
-        "symfony/yaml": "^5.3",
+        "symplify/php-config-printer": "^9.4.70",
+        "symfony/yaml": "^v5.4.14",
         "sylius/grid-bundle": "dev-master",
-        "phpunit/phpunit": "^9.5"
+        "phpunit/phpunit": "^9.5.26"
     },
     "autoload": {
         "psr-4": {

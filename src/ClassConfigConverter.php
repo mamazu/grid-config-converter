@@ -12,6 +12,7 @@ use Sylius\Bundle\GridBundle\Builder\Action\Action;
 use Sylius\Bundle\GridBundle\Builder\Action\DeleteAction;
 use Sylius\Bundle\GridBundle\Builder\Action\ShowAction;
 use Sylius\Bundle\GridBundle\Builder\Action\UpdateAction;
+use Sylius\Bundle\GridBundle\Builder\Action\CreateAction;
 use Sylius\Bundle\GridBundle\Builder\Field\Field;
 use Sylius\Bundle\GridBundle\Builder\Filter\Filter;
 use Sylius\Bundle\GridBundle\Builder\GridBuilder;
@@ -116,6 +117,7 @@ class ClassConfigConverter
             GridBuilder::class,
             Action::class,
             ShowAction::class,
+            CreateAction::class,
             UpdateAction::class,
             DeleteAction::class,
             DateTimeField::class,
@@ -141,7 +143,7 @@ class ClassConfigConverter
                         $this->createStaticFunction('getResourceClass', $resourceClass),
                     ],
                 ],
-                []
+                [
             );
         } else {
             $className = $gridName;
