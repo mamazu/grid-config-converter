@@ -47,6 +47,7 @@ class FieldConverter
         // Only add the options if the value is not empty. This can happen for the twig field for example. The template is now
         // part of the create call and not an option anymore
         if (isset($fieldConfig['options'])) {
+            unset($fieldConfig['options']['template']);
             if (count($fieldConfig['options']) > 0) {
                 $field = new MethodCall($field, 'setOptions', [$this->convertValue($fieldConfig['options'])]);
             }
@@ -60,7 +61,7 @@ class FieldConverter
 
     private function createField(array $fieldConfig, string $fieldName): Expr
     {
-        switch ($fieldConfig['type']) {
+        switch ($fieldConfig['type']??'string') {
             case 'datetime':
                 $field = new StaticCall(new Name('DateTimeField'), 'create', [
                     $this->convertValue($fieldName),
@@ -80,7 +81,7 @@ class FieldConverter
             default:
                 $field = new StaticCall(new Name('Field'), 'create', [
                     $this->convertValue($fieldName),
-                    $this->convertValue($fieldConfig['type']),
+                    $this->convertValue($fieldConfig['type']??'string'),
                 ]);
         }
         return $field;

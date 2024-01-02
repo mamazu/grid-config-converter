@@ -3,15 +3,17 @@
 
 use Mamazu\ConfigConverter\ClassConfigConverter;
 
-require_once __DIR__."/../vendor/autoload.php";
-require_once __DIR__."/../src/ClassConfigConverter.php";
-require_once __DIR__."/../src/GridBuilderCalls.php";
+require_once __DIR__ . "/../vendor/autoload.php";
+require_once __DIR__ . "/../src/ClassConfigConverter.php";
+require_once __DIR__ . "/../src/GridBuilderCalls.php";
 
 if (count($argv) < 2) {
     echo "Usage: bin/config-transformer <file to convert> [grid namespace]\n";
     echo "\t<file to convert>: must be in the yaml / yml format\n";
     echo "\t[grid namespace]: (optional) Namespace of the grid class that is generated";
-    echo "\t[--function]: (optional) Generating the functional version of it";
+    echo "\t[--output-directory <path>]: (optional) Save the file in directory";
+    echo "\t[--functional]: (optional) Generating the functional version of it";
+    echo "\t[-q]: (optional) Quiet";
     echo "\n\n";
     echo "Example: bin/config-transformer order.yaml \"App\\Env\"\n";
     die(1);
@@ -35,4 +37,22 @@ if (in_array('--functional', $argv, true)) {
     $configConverter->setFunctional();
 }
 
-$configConverter->convert($argv[1]);
+$outputDirectory = '';
+if (in_array('--output-directory', $argv, true)) {
+    $key = array_search('--output-directory', $argv, true);
+    if (array_key_exists($key + 1, $argv) === false) {
+        echo 'Please add the output directory after the --output-directory argument';
+        die(1);
+    }
+    $outputDirectory = $argv[$key + 1];
+    if (
+        is_dir($outputDirectory) === false
+        && mkdir($outputDirectory, 0777, true)
+        && is_dir($outputDirectory) === false
+    ) {
+        echo 'Unable to create the directory defined by "--output-directory" argument: "'.$outputDirectory.'"';
+        die(1);
+    }
+}
+
+$configConverter->convert($argv[1], $outputDirectory);
