@@ -70,8 +70,9 @@ class GridBuilderCalls
 
         // Handle actions
         if (array_key_exists('actions', $gridConfiguration)) {
-            if ($gridConfiguration['actions'] instanceof \iterable) {
-                foreach ($gridConfiguration['actions'] as $type => $configuredTypes) {
+            $actions = $gridConfiguration['actions'];
+            if (is_array($actions) || $actions instanceof \iterable) {
+                foreach ($actions as $type => $configuredTypes) {
                     $mappings = [
                         'main' => 'MainActionGroup',
                         'item' => 'ItemActionGroup',
@@ -79,6 +80,7 @@ class GridBuilderCalls
                         'bulk' => 'BulkActionGroup',
                     ];
 
+                    [$add, $remove] = $this->convertActionsToFunctionParameters($configuredTypes);
                     $gridBuilder = new MethodCall(
                         $gridBuilder,
                         'addActionGroup',
@@ -86,10 +88,20 @@ class GridBuilderCalls
                             new Arg(new Node\Expr\StaticCall(
                                 new Name($mappings[$type]),
                                 'create',
-                                $this->convertActionsToFunctionParameters($configuredTypes)
+                                $add
                             )),
                         ]
                     );
+                    foreach ($remove as $item) {
+                        $gridBuilder = new MethodCall(
+                            $gridBuilder,
+                            'removeAction',
+                            [
+                                new Arg(new Node\Scalar\String_($item)),
+                                new Arg(new Node\Scalar\String_($type)),
+                            ]
+                        );
+                    }
                 }
             }
             unset($gridConfiguration['actions']);
@@ -124,9 +136,13 @@ class GridBuilderCalls
 
             return $field;
         };
-
+        $removedField = [];
         $field = [];
         foreach ($actions as $actionName => $actionConfiguration) {
+            if (($actionConfiguration['enabled'] ?? true) === false) {
+                $removedField[] = $actionName;
+                continue;
+            }
             switch ($actionConfiguration['type']) {
                 case 'create':
                     $field[] = new Node\Expr\StaticCall(new Name('CreateAction'), 'create');
@@ -145,7 +161,7 @@ class GridBuilderCalls
             }
         }
 
-        return $field;
+        return [$field, $removedField];
     }
 
     private function handleDriver(Expr $gridBuilder, array $driverConfiguration): Expr
