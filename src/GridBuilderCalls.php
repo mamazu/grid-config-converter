@@ -8,6 +8,7 @@ use PhpParser\Node;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\Expression;
+use PhpParser\Node\Stmt\Throw_;
 
 class GridBuilderCalls
 {
@@ -23,7 +24,7 @@ class GridBuilderCalls
         $this->fieldConverter = new FieldConverter();
     }
 
-    public function getGridBuilderBody(Expr $gridBuilder, array $gridConfiguration): Expression
+    public function getGridBuilderBody(Expr $gridBuilder, array $gridConfiguration): Node\Stmt
     {
         if (array_key_exists('driver', $gridConfiguration)) {
             $gridBuilder = $this->handleDriver($gridBuilder, $gridConfiguration['driver']);
@@ -69,31 +70,41 @@ class GridBuilderCalls
 
         // Handle actions
         if (array_key_exists('actions', $gridConfiguration)) {
-            foreach ($gridConfiguration['actions'] as $type => $configuredTypes) {
-                $mappings = [
-                    'main' => 'MainActionGroup',
-                    'item' => 'ItemActionGroup',
-                    'subitem' => 'SubItemActionGroup',
-                    'bulk' => 'BulkActionGroup',
-                ];
+            if ($gridConfiguration['actions'] instanceof \iterable) {
+                foreach ($gridConfiguration['actions'] as $type => $configuredTypes) {
+                    $mappings = [
+                        'main' => 'MainActionGroup',
+                        'item' => 'ItemActionGroup',
+                        'subitem' => 'SubItemActionGroup',
+                        'bulk' => 'BulkActionGroup',
+                    ];
 
-                $gridBuilder = new MethodCall(
-                    $gridBuilder,
-                    'addActionGroup',
-                    [
-                        new Arg(new Node\Expr\StaticCall(
-                            new Name($mappings[$type]),
-                            'create',
-                            $this->convertActionsToFunctionParameters($configuredTypes)
-                        )),
-                    ]
-                );
+                    $gridBuilder = new MethodCall(
+                        $gridBuilder,
+                        'addActionGroup',
+                        [
+                            new Arg(new Node\Expr\StaticCall(
+                                new Name($mappings[$type]),
+                                'create',
+                                $this->convertActionsToFunctionParameters($configuredTypes)
+                            )),
+                        ]
+                    );
+                }
             }
             unset($gridConfiguration['actions']);
         }
 
         $this->checkUnconsumedConfiguration('.', $gridConfiguration);
 
+        if ($gridBuilder instanceof Expr\Variable && $gridBuilder->name === 'gridBuilder') {
+            return new Throw_(
+                new Expr\New_(new Name(
+                    '\InvalidArgumentException'),
+                    ['arguments' => new Node\Scalar\String_('No configuration for this grid')]
+                )
+            );
+        }
         return new Expression($gridBuilder);
     }
 
@@ -140,17 +151,29 @@ class GridBuilderCalls
     private function handleDriver(Expr $gridBuilder, array $driverConfiguration): Expr
     {
         if (array_key_exists('name', $driverConfiguration)) {
-            $gridBuilder = new MethodCall($gridBuilder, 'setDriver', [$this->convertValue($driverConfiguration['name'])]);
+            if ($driverConfiguration['name'] !== 'doctrine/orm') {
+                $gridBuilder = new MethodCall(
+                    $gridBuilder,
+                    'setDriver',
+                    [$this->convertValue($driverConfiguration['name'])]
+                );
+            }
             unset($driverConfiguration['name']);
         }
 
         if (array_key_exists('repository', $driverConfiguration['options'])) {
-            $gridBuilder = $this->handleRepositoryConfiguration($gridBuilder, $driverConfiguration['options']['repository']);
+            $gridBuilder = $this->handleRepositoryConfiguration(
+                $gridBuilder,
+                $driverConfiguration['options']['repository']
+            );
             unset($driverConfiguration['options']['repository']);
         }
 
         if (array_key_exists('options', $driverConfiguration)) {
             foreach ($driverConfiguration['options'] as $option => $optionValue) {
+                if ($option === 'class') {
+                    continue;
+                }
                 $gridBuilder = new MethodCall($gridBuilder, 'setDriverOption', [
                     $this->convertValue($option),
                     $this->convertValue($optionValue)

@@ -4,7 +4,7 @@ Converts a yaml configuration file from the [SyliusGridBundle](https://github.co
 ## How to use:
 * Clone the repository
 * `composer install`
-* `bin/config-converter <path> [namespace] [--functional]`
+* `bin/config-converter <path> [namespace] [--functional] [--output-directory <path>] [-q]`
 
 This will print the generated code out to the screen and produce a file that contains the new configuration.
 
