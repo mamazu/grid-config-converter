@@ -37,7 +37,7 @@ if (in_array('--functional', $argv, true)) {
     $configConverter->setFunctional();
 }
 
-$outputDirectory = '';
+$outputDirectory = getcwd();
 if (in_array('--output-directory', $argv, true)) {
     $key = array_search('--output-directory', $argv, true);
     if (array_key_exists($key + 1, $argv) === false) {

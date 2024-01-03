@@ -96,13 +96,14 @@ class ClassConfigConverter
             $new_content = $this->codeOutputter->printCode($phpCode);
 
             $newFileName = $className . '.php';
+            $newFilePath = realpath($outputDirectory . DIRECTORY_SEPARATOR . $newFileName);
             if ($this->verbose) {
-                echo "==============================$newFileName================" . PHP_EOL;
+                echo "==============================$newFilePath================" . PHP_EOL;
                 echo $new_content;
             } else {
-                echo "Writing the content to " . realpath($outputDirectory . DIRECTORY_SEPARATOR . $newFileName) . PHP_EOL;
+                echo "Writing the content to " . $newFilePath . PHP_EOL;
             }
-            file_put_contents($outputDirectory . DIRECTORY_SEPARATOR . $newFileName, $new_content);
+            file_put_contents($newFilePath, $new_content);
         }
     }
 
