@@ -1,4 +1,7 @@
 {
+    "name": "mamazu/grid-config-converter",
+    "description": "Tool to convert the sylius grid bundle configuration from Yaml to PHP",
+    "license": "MIT",
     "require": {
         "php": ">=7.4",
         "symplify/php-config-printer": "^9.4.70",
