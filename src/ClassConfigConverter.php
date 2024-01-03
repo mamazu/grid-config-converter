@@ -70,6 +70,11 @@ class ClassConfigConverter
 
     public function convert(string $fileName, string $outputDirectory): void
     {
+        $outputDirectory = realpath($outputDirectory);
+        if ($outputDirectory === false) {
+            throw new InvalidArgumentException('Invalid output directory: '.$outputDirectory);
+        }
+
         $allGrids = Yaml::parse(file_get_contents($fileName))['sylius_grid']['grids'] ?? [];
 
         if (!is_array($allGrids)) {
@@ -90,13 +95,13 @@ class ClassConfigConverter
             try {
                 [$className, $phpCode] = $this->handleGrid($gridName, $gridConfiguration);
             } catch (\Throwable $e) {
-                printf('EXCEPTION "%s" on grid "%s": %s', get_class($e), $gridName, $e->getMessage());
+                printf('EXCEPTION "%s" on grid "%s": %s%s', get_class($e), $gridName, $e->getMessage(), PHP_EOL);
                 continue;
             }
             $new_content = $this->codeOutputter->printCode($phpCode);
 
             $newFileName = $className . '.php';
-            $newFilePath = realpath($outputDirectory . DIRECTORY_SEPARATOR . $newFileName);
+            $newFilePath = $outputDirectory. DIRECTORY_SEPARATOR . $newFileName;
             if ($this->verbose) {
                 echo "==============================$newFilePath================" . PHP_EOL;
                 echo $new_content;

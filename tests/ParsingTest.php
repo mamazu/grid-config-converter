@@ -15,7 +15,7 @@ class ParsingTest extends \PHPUnit\Framework\TestCase
         foreach(new DirectoryIterator('.') as $file) {
             /** @var DirectoryIterator $file */
             if(in_array($file->getExtension(), ['yaml', 'yml'])) {
-                $builder->convert($file->getFilename());
+                $builder->convert($file->getFilename(), __DIR__);
             }
         }
     }
