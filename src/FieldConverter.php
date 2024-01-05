@@ -49,7 +49,7 @@ class FieldConverter
         if (isset($fieldConfig['options'])) {
             unset($fieldConfig['options']['template']);
             if (count($fieldConfig['options']) > 0) {
-                $field = new MethodCall($field, 'setOptions', [$this->convertValue($fieldConfig['options'])]);
+                $field = new MethodCall($field, 'addOptions', [$this->convertValue($fieldConfig['options'])]);
             }
             unset($fieldConfig['options']);
         }
