@@ -70,8 +70,9 @@ class GridBuilderCalls
 
         // Handle actions
         if (array_key_exists('actions', $gridConfiguration)) {
-            if ($gridConfiguration['actions'] instanceof \iterable) {
-                foreach ($gridConfiguration['actions'] as $type => $configuredTypes) {
+            $actions = $gridConfiguration['actions'];
+            if (is_array($actions) || $actions instanceof \iterable) {
+                foreach ($actions as $type => $configuredTypes) {
                     $mappings = [
                         'main' => 'MainActionGroup',
                         'item' => 'ItemActionGroup',
@@ -79,6 +80,7 @@ class GridBuilderCalls
                         'bulk' => 'BulkActionGroup',
                     ];
 
+                    [$add, $remove] = $this->convertActionsToFunctionParameters($configuredTypes);
                     $gridBuilder = new MethodCall(
                         $gridBuilder,
                         'addActionGroup',
@@ -86,10 +88,20 @@ class GridBuilderCalls
                             new Arg(new Node\Expr\StaticCall(
                                 new Name($mappings[$type]),
                                 'create',
-                                $this->convertActionsToFunctionParameters($configuredTypes)
+                                $add
                             )),
                         ]
                     );
+                    foreach ($remove as $item) {
+                        $gridBuilder = new MethodCall(
+                            $gridBuilder,
+                            'removeAction',
+                            [
+                                new Arg(new Node\Scalar\String_($item)),
+                                new Arg(new Node\Scalar\String_($type)),
+                            ]
+                        );
+                    }
                 }
             }
             unset($gridConfiguration['actions']);
@@ -111,41 +123,43 @@ class GridBuilderCalls
     /** * @return array<Node\Expr> */
     public function convertActionsToFunctionParameters(array $actions): array
     {
-        $handleCustomGrid = function (string $actionName, array $configuration): Node {
-            $field = new Node\Expr\StaticCall(new Name('Action'), 'create', [
-                $this->convertValue($actionName),
-                $this->convertValue($configuration['type'])
-            ]);
-            $this->convertToFunctionCall($field, $configuration, 'label');
-            $this->convertToFunctionCall($field, $configuration, 'icon');
-            $this->convertToFunctionCall($field, $configuration, 'enabled');
-            $this->convertToFunctionCall($field, $configuration, 'position');
-            $this->convertToFunctionCall($field, $configuration, 'options');
-
-            return $field;
-        };
-
+        $removedField = [];
         $field = [];
         foreach ($actions as $actionName => $actionConfiguration) {
+            if (($actionConfiguration['enabled'] ?? true) === false) {
+                $removedField[] = $actionName;
+                continue;
+            }
             switch ($actionConfiguration['type']) {
                 case 'create':
-                    $field[] = new Node\Expr\StaticCall(new Name('CreateAction'), 'create');
+                    $currentField = new Node\Expr\StaticCall(new Name('CreateAction'), 'create');
                     break;
                 case 'show':
-                    $field[] = new Node\Expr\StaticCall(new Name('ShowAction'), 'create');
+                    $currentField = new Node\Expr\StaticCall(new Name('ShowAction'), 'create');
                     break;
                 case 'delete':
-                    $field[] = new Node\Expr\StaticCall(new Name('DeleteAction'), 'create');
+                    $currentField = new Node\Expr\StaticCall(new Name('DeleteAction'), 'create');
                     break;
                 case 'update':
-                    $field[] = new Node\Expr\StaticCall(new Name('UpdateAction'), 'create');
+                    $currentField = new Node\Expr\StaticCall(new Name('UpdateAction'), 'create');
                     break;
                 default:
-                    $field[] = $handleCustomGrid($actionName, $actionConfiguration);
+                    $currentField = new Node\Expr\StaticCall(new Name('Action'), 'create', [
+                        $this->convertValue($actionName),
+                        $this->convertValue($actionConfiguration['type'])
+                    ]);
             }
+
+            $this->convertToFunctionCall($currentField, $actionConfiguration, 'label');
+            $this->convertToFunctionCall($currentField, $actionConfiguration, 'icon');
+            $this->convertToFunctionCall($currentField, $actionConfiguration, 'enabled');
+            $this->convertToFunctionCall($currentField, $actionConfiguration, 'position');
+            $this->convertToFunctionCall($currentField, $actionConfiguration, 'options');
+
+            $field[]=$currentField;
         }
 
-        return $field;
+        return [$field, $removedField];
     }
 
     private function handleDriver(Expr $gridBuilder, array $driverConfiguration): Expr
