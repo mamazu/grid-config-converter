@@ -8,7 +8,8 @@ use PhpParser\Node\Expr\MethodCall;
 
 trait CommonConverterTrait
 {
-    private function checkUnconsumedConfiguration(string $key, array $configuration) {
+    private function checkUnconsumedConfiguration(string $key, array $configuration): void
+    {
         if (count($configuration) !== 0) {
             throw new InvalidArgumentException(
                 sprintf('There are unconsumed fields under the key "%s": %s',

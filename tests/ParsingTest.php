@@ -1,6 +1,7 @@
 <?php
 
 use Mamazu\ConfigConverter\ClassConfigConverter;
+use Sylius\Bundle\GridBundle\Builder\GridBuilder;
 use Sylius\Component\Grid\Definition\ArrayToDefinitionConverter;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -31,13 +32,7 @@ class ParsingTest extends \PHPUnit\Framework\TestCase
         include 'SyliusAdminOrder.php';
         $orderGrid = new \SyliusAdminOrder();
 
-        $edi = $this->createMock(EventDispatcherInterface::class);
-        $converter = new ArrayToDefinitionConverter($edi);
-
-        $def1 = $converter->convert('sylius_admin_order', $yaml);
-        $def2 = $converter->convert('sylius_admin_order', $orderGrid->toArray());
-
-        $this->assertEquals($def1, $def2);
+        $this->assertGridEquals('sylius_admin_order', $yaml, $orderGrid);
     }
 
     /** @covers  */
@@ -49,12 +44,15 @@ class ParsingTest extends \PHPUnit\Framework\TestCase
         include 'Foo.php';
         $orderGrid = new \Foo();
 
-        $edi = $this->createMock(EventDispatcherInterface::class);
-        $converter = new ArrayToDefinitionConverter($edi);
+        $this->assertGridEquals('foo', $yaml, $orderGrid);
+    }
 
-        $def1 = $converter->convert('foo', $yaml);
-        $def2 = $converter->convert('foo', $orderGrid->toArray());
+    private function assertGridEquals(string $gridName, array $yaml, object $grid): void {
+        $gridBuilder = GridBuilder::create($gridName);
+        $grid->__invoke($gridBuilder);
+        $gridConfig = $gridBuilder->toArray();
+        unset($gridConfig['removals']);
 
-        $this->assertEquals($def1, $def2);
+        $this->assertEquals($yaml, $gridConfig);
     }
 }

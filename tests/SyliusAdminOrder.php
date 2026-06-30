@@ -4,7 +4,7 @@
  * Feel free to modify the code as you see fit.
  */
 declare (strict_types=1);
-use Sylius\Bundle\GridBundle\Grid\AbstractGrid;
+use Sylius\Component\Grid\Attribute\AsGrid;
 use Sylius\Bundle\GridBundle\Builder\Filter\Filter;
 use Sylius\Bundle\GridBundle\Builder\Field\Field;
 use Sylius\Bundle\GridBundle\Builder\GridBuilderInterface;
@@ -22,19 +22,19 @@ use Sylius\Bundle\GridBundle\Builder\Action\DeleteAction;
 use Sylius\Bundle\GridBundle\Builder\Field\DateTimeField;
 use Sylius\Bundle\GridBundle\Builder\Field\StringField;
 use Sylius\Bundle\GridBundle\Builder\Field\TwigField;
-use Sylius\Bundle\GridBundle\Grid\ResourceAwareGridInterface;
-class SyliusAdminOrder extends AbstractGrid implements ResourceAwareGridInterface
+#[AsGrid('sylius_admin_order')]
+class SyliusAdminOrder
 {
-    public static function getName() : string
+    public function __construct(private string $resourceClass = '%sylius.model.order.class%')
     {
-        return 'sylius_admin_order';
     }
-    public function buildGrid(GridBuilderInterface $gridBuilder) : void
+    public function __invoke(GridBuilderInterface $gridBuilder): void
     {
         $gridBuilder
             ->setRepositoryMethod('myCustomMethod', [
                 'id' => 'resource.id',
             ])
+            ->setDriverOption('class', $this->resourceClass)
             ->setDriverOption('pagination', [
                 'fetch_join_collection' => false,
                 'use_output_walkers' => false,
@@ -167,9 +167,5 @@ class SyliusAdminOrder extends AbstractGrid implements ResourceAwareGridInterfac
                 ->setLabel('sylius.ui.show'))
             )
         ;
-    }
-    public function getResourceClass() : string
-    {
-        return '%sylius.model.order.class%';
     }
 }

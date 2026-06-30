@@ -6,6 +6,8 @@ use PhpParser\Node\Arg;
 use PhpParser\Node\Expr;
 use PhpParser\Node;
 use PhpParser\Node\Expr\MethodCall;
+use PhpParser\Node\Expr\PropertyFetch;
+use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\Expression;
 use PhpParser\Node\Stmt\Throw_;
@@ -186,6 +188,10 @@ class GridBuilderCalls
         if (array_key_exists('options', $driverConfiguration)) {
             foreach ($driverConfiguration['options'] as $option => $optionValue) {
                 if ($option === 'class') {
+                    $gridBuilder = new MethodCall($gridBuilder, 'setDriverOption', [
+                        $this->convertValue($option),
+                        new PropertyFetch(new Variable('this'), 'resourceClass'),
+                    ]);
                     continue;
                 }
                 $gridBuilder = new MethodCall($gridBuilder, 'setDriverOption', [

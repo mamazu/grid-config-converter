@@ -2,7 +2,6 @@
 
 namespace Mamazu\ConfigConverter;
 
-use PhpParser\Comment;
 use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\Array_;

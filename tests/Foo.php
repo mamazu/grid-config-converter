@@ -4,7 +4,7 @@
  * Feel free to modify the code as you see fit.
  */
 declare (strict_types=1);
-use Sylius\Bundle\GridBundle\Grid\AbstractGrid;
+use Sylius\Component\Grid\Attribute\AsGrid;
 use Sylius\Bundle\GridBundle\Builder\Filter\Filter;
 use Sylius\Bundle\GridBundle\Builder\Field\Field;
 use Sylius\Bundle\GridBundle\Builder\GridBuilderInterface;
@@ -22,24 +22,20 @@ use Sylius\Bundle\GridBundle\Builder\Action\DeleteAction;
 use Sylius\Bundle\GridBundle\Builder\Field\DateTimeField;
 use Sylius\Bundle\GridBundle\Builder\Field\StringField;
 use Sylius\Bundle\GridBundle\Builder\Field\TwigField;
-use Sylius\Bundle\GridBundle\Grid\ResourceAwareGridInterface;
-class Foo extends AbstractGrid implements ResourceAwareGridInterface
+#[AsGrid('foo')]
+class Foo
 {
-    public static function getName() : string
+    public function __construct(private string $resourceClass = '%sylius.model.order.class%')
     {
-        return 'foo';
     }
-    public function buildGrid(GridBuilderInterface $gridBuilder) : void
+    public function __invoke(GridBuilderInterface $gridBuilder): void
     {
         $gridBuilder
+            ->setDriverOption('class', $this->resourceClass)
             ->setDriverOption('pagination', [
                 'fetch_join_collection' => false,
                 'use_output_walkers' => false,
             ])
         ;
-    }
-    public function getResourceClass() : string
-    {
-        return '%sylius.model.order.class%';
     }
 }

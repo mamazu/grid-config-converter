@@ -2,7 +2,6 @@
 
 namespace Mamazu\ConfigConverter;
 
-use PhpParser\Comment;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\ConstFetch;
