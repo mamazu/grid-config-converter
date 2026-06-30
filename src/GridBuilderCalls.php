@@ -20,6 +20,12 @@ class GridBuilderCalls
     private FilterConverter $filterConverter;
     private FieldConverter $fieldConverter;
 
+    /**
+     * True if the grid should be a function false otherwise
+     * (prevents the generator from referencing $this
+     */
+    public bool $functionalMode;
+
     public function __construct()
     {
         $this->filterConverter = new FilterConverter();
@@ -188,10 +194,12 @@ class GridBuilderCalls
         if (array_key_exists('options', $driverConfiguration)) {
             foreach ($driverConfiguration['options'] as $option => $optionValue) {
                 if ($option === 'class') {
-                    $gridBuilder = new MethodCall($gridBuilder, 'setDriverOption', [
-                        $this->convertValue($option),
-                        new PropertyFetch(new Variable('this'), 'resourceClass'),
-                    ]);
+                    if (!$this->functionalMode) {
+                        $gridBuilder = new MethodCall($gridBuilder, 'setDriverOption', [
+                            $this->convertValue($option),
+                            new PropertyFetch(new Variable('this'), 'resourceClass'),
+                        ]);
+                    }
                     continue;
                 }
                 $gridBuilder = new MethodCall($gridBuilder, 'setDriverOption', [

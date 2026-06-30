@@ -195,6 +195,8 @@ class ClassConfigConverter
     }
     public function createGridBuildFunction(array $configuration): Node
     {
+        $this->gridBuilder->functionalMode = false;
+
         $gridBuilder = new Variable('gridBuilder');
         return new ClassMethod(
             new Identifier('__invoke'),
@@ -220,6 +222,7 @@ class ClassConfigConverter
         ]);
 
         $parameter = new Variable('grid');
+        $this->gridBuilder->functionalMode = true;
 
         return new Return_(
             new Expr\Closure([
