@@ -82,23 +82,17 @@ class GridBuilderCalls
             if (is_array($actions) || $actions instanceof \iterable) {
                 foreach ($actions as $type => $configuredTypes) {
                     $mappings = [
-                        'main' => 'MainActionGroup',
-                        'item' => 'ItemActionGroup',
-                        'subitem' => 'SubItemActionGroup',
-                        'bulk' => 'BulkActionGroup',
+                        'main' => 'withMainActions',
+                        'item' => 'withItemActions',
+                        'subitem' => 'withSubItemActions',
+                        'bulk' => 'withBulkActions',
                     ];
 
                     [$add, $remove] = $this->convertActionsToFunctionParameters($configuredTypes);
                     $gridBuilder = new MethodCall(
                         $gridBuilder,
-                        'addActionGroup',
-                        [
-                            new Arg(new Node\Expr\StaticCall(
-                                new Name($mappings[$type]),
-                                'create',
-                                $add
-                            )),
-                        ]
+                        $mappings[$type],
+                        $add
                     );
                     foreach ($remove as $item) {
                         $gridBuilder = new MethodCall(

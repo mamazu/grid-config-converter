@@ -5,7 +5,7 @@
     "require": {
         "php": ">=8.0",
         "symfony/yaml": "^v5.4.14",
-        "sylius/grid-bundle": "^1.15",
+        "sylius/grid-bundle": "v1.16.0-ALPHA.3",
         "phpunit/phpunit": "^9.5.26"
     },
     "autoload": {
