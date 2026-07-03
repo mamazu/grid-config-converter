@@ -148,14 +148,19 @@ class ClassConfigConverter
         if (!$this->functional) {
             $className = ucfirst(preg_replace_callback('#_\w#', static fn($a) => strtoupper($a[0][1]), $gridName));
 
+            $asGridArgs = [new Node\Arg(new String_($gridName), name: new Identifier('name'))];
+
+            if ($resourceClass) {
+                $asGridArgs[] = new Node\Arg(new String_($resourceClass), name: new Identifier('resourceClass'));
+            }
+
             $phpNodes[] = new Node\AttributeGroup([
-                new Node\Attribute(new Name('AsGrid'), [new Node\Arg(new String_($gridName))]),
+                new Node\Attribute(new Name('AsGrid'), $asGridArgs),
             ]);
             $phpNodes[] = new Class_(
                 new Identifier($className),
                 [
                     'stmts' => [
-                        $this->createConstructor($resourceClass),
                         $this->createGridBuildFunction($gridConfiguration),
                     ],
                 ]
@@ -168,28 +173,6 @@ class ClassConfigConverter
         return [$className, $phpNodes];
     }
 
-    public function createConstructor(?string $resourceClass): Node
-    {
-        if ($resourceClass !== null) {
-            $default = new String_($resourceClass);
-        }
-
-        return new ClassMethod(
-            new Identifier('__construct'),
-            [
-                'flags' => Modifiers::PUBLIC,
-                'params' => [
-                    new Param(
-                        var: new Variable('resourceClass'),
-                        type: new Identifier('string'),
-                        default: $default,
-                        flags: Modifiers::PRIVATE,
-                    ),
-                ],
-                'stmts' => [],
-            ]
-        );
-    }
     public function createGridBuildFunction(array $configuration): Node
     {
         $this->gridBuilder->functionalMode = false;
