@@ -1,0 +1,11 @@
+sylius_grid:
+  grids:
+    no_resource_class_grid:
+      driver:
+        name: doctrine/orm
+      fields:
+        someField:
+          type: string
+          label: 'Some Field Label'
+          sortable: false
+

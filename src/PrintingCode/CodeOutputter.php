@@ -1,6 +1,6 @@
 <?php
 
-namespace Mamazu\ConfigConverter;
+namespace Mamazu\ConfigConverter\PrintingCode;
 
 use PhpParser\PrettyPrinter\Standard;
 

@@ -6,8 +6,6 @@ use PhpParser\Node\Arg;
 use PhpParser\Node\Expr;
 use PhpParser\Node;
 use PhpParser\Node\Expr\MethodCall;
-use PhpParser\Node\Expr\PropertyFetch;
-use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\Expression;
 use PhpParser\Node\Stmt\Throw_;
@@ -177,7 +175,7 @@ class GridBuilderCalls
             unset($driverConfiguration['name']);
         }
 
-        if (array_key_exists('repository', $driverConfiguration['options'])) {
+        if (array_key_exists('repository', $driverConfiguration['options'] ?? [])) {
             $gridBuilder = $this->handleRepositoryConfiguration(
                 $gridBuilder,
                 $driverConfiguration['options']['repository']

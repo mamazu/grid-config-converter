@@ -3,6 +3,7 @@
 namespace Mamazu\ConfigConverter;
 
 use InvalidArgumentException;
+use Mamazu\ConfigConverter\PrintingCode\CodeOutputter;
 use PhpParser\Modifiers;
 use PhpParser\Node;
 use PhpParser\Node\Expr;
@@ -15,7 +16,6 @@ use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Expression;
 use PhpParser\Node\Stmt\Return_;
-use PhpParser\Node\Stmt\Throw_;
 use PhpParser\Node\Stmt\Use_;
 use PhpParser\Node\UseItem;
 use Sylius\Bundle\GridBundle\Builder\Action\Action;
@@ -24,9 +24,6 @@ use Sylius\Bundle\GridBundle\Builder\Action\DeleteAction;
 use Sylius\Bundle\GridBundle\Builder\Action\ShowAction;
 use Sylius\Bundle\GridBundle\Builder\Action\UpdateAction;
 use Sylius\Bundle\GridBundle\Builder\ActionGroup\BulkActionGroup;
-use Sylius\Bundle\GridBundle\Builder\ActionGroup\ItemActionGroup;
-use Sylius\Bundle\GridBundle\Builder\ActionGroup\MainActionGroup;
-use Sylius\Bundle\GridBundle\Builder\ActionGroup\SubItemActionGroup;
 use Sylius\Bundle\GridBundle\Builder\Field\DateTimeField;
 use Sylius\Bundle\GridBundle\Builder\Field\Field;
 use Sylius\Bundle\GridBundle\Builder\Field\StringField;
@@ -110,11 +107,11 @@ class ClassConfigConverter
 
     public function handleGrid(string $gridName, array $gridConfiguration): array
     {
-
-        $phpNodes = [];
-        $phpNodes[] = new Node\Stmt\Declare_([
-            new Node\DeclareItem(new Identifier('strict_types'), new Node\Scalar\Int_(1))
-        ]);
+        $phpNodes = [
+            new Node\Stmt\Declare_([
+                new Node\DeclareItem(new Identifier('strict_types'), new Node\Scalar\Int_(1))
+            ]),
+        ];
         if ($this->namespace) {
             $phpNodes[] = new Node\Stmt\Namespace_(new Name($this->namespace));
         }
@@ -136,7 +133,7 @@ class ClassConfigConverter
             TwigField::class,
         ]));
 
-        $resourceClass = $gridConfiguration['driver']['options']['class'] ?? self::NO_CLASS;
+        $resourceClass = $gridConfiguration['driver']['options']['class'] ?? null;
         $isClassName = false;
         if (class_exists($resourceClass)) {
             $phpNodes[] = new Use_([new UseItem(new Name($resourceClass))]);

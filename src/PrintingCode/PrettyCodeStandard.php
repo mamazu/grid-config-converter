@@ -1,6 +1,6 @@
 <?php
 
-namespace Mamazu\ConfigConverter;
+namespace Mamazu\ConfigConverter\PrintingCode;
 
 use PhpParser\Node\Expr;
 use PhpParser\Node\Stmt;

@@ -31,15 +31,21 @@ class FieldConverter
          * means the field is sortable with the default configuration
          */
         if (array_key_exists('sortable', $fieldConfig)) {
-            $path = $fieldConfig['sortable'];
+            if ($fieldConfig['sortable'] === false) {
+                $field = new MethodCall($field, 'setSortable', [
+                    $this->convertValue(false),
+                ]);
+            } else {
+                $path = $fieldConfig['sortable'];
 
-            $arguments = [
-                new ConstFetch(new Name('true')),
-            ];
-            if ($path !== null) {
-                $arguments[] = new String_($path);
+                $arguments = [
+                    $this->convertValue(true),
+                ];
+                if ($path !== null) {
+                    $arguments[] = new String_($path);
+                }
+                $field = new MethodCall($field, 'setSortable', $arguments);
             }
-            $field = new MethodCall($field, 'setSortable', $arguments);
             unset($fieldConfig['sortable']);
         }
 

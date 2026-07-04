@@ -20,7 +20,8 @@ class ParsingTest extends \PHPUnit\Framework\TestCase
     public static function getOutputFolder(): string {
         return __DIR__.'/output';
     }
-    public function setup(): void {
+    public function setup(): void
+    {
         chdir(__DIR__);
 
         mkdir(self::getOutputFolder());
@@ -39,26 +40,38 @@ class ParsingTest extends \PHPUnit\Framework\TestCase
         exec('rm -rf "'.self::getOutputFolder().'"');
     }
 
-    /** @covers  */
-    public function testConfigurationForOrder()
+    /** @dataProvider dataTestGridConfiguration */
+    public function testConfigurationFor(string $yamlFileName, string $gridName, string $className): void
     {
-        $yaml = Yaml::parse(file_get_contents('order.yml'))['sylius_grid']['grids']['sylius_admin_order'];
+        $yamlGrids = Yaml::parse(file_get_contents($yamlFileName))['sylius_grid']['grids'];
+        $this->assertArrayHasKey($gridName, $yamlGrids, 'Could not find grid with name: '.$gridName);
 
-        include self::getOutputFolder().'/SyliusAdminOrder.php';
-        $orderGrid = new \SyliusAdminOrder();
+        include self::getOutputFolder().'/'.$className.'.php';
+        $orderGrid = new $className();
 
-        $this->assertGridEquals('sylius_admin_order', $yaml, $orderGrid);
+        $this->assertGridEquals($gridName, $yamlGrids[$gridName], $orderGrid);
     }
 
-    /** @covers  */
-    public function testConfigurationForAdvancedConfig()
+    /** @return Generator<string, array{string, string, string}> */
+    public static function dataTestGridConfiguration(): Generator
     {
-        $yaml = Yaml::parse(file_get_contents('advanced_configuration.yml'))['sylius_grid']['grids']['foo'];
+        yield 'Sylius order grid' => [
+            'order.yaml',
+            'sylius_admin_order',
+            'SyliusAdminOrder'
+        ];
 
-        include self::getOutputFolder().'/Foo.php';
-        $orderGrid = new \Foo();
+        yield 'Advanced repository configuration' => [
+            'advanced_configuration.yaml',
+            'foo',
+            'Foo',
+        ];
 
-        $this->assertGridEquals('foo', $yaml, $orderGrid);
+        yield 'No resource class' => [
+            'no_resource_class.yaml',
+            'no_resource_class_grid',
+            'NoResourceClassGrid',
+        ];
     }
 
     private function assertGridEquals(string $gridName, array $yaml, object $grid): void {
