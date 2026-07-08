@@ -1,0 +1,42 @@
+sylius_grid:
+  grids:
+    sylius_admin_order:
+      limits: [30, 12, 48]
+      driver:
+        name: doctrine/orm
+        options:
+          class: "%sylius.model.order.class%"
+          repository:
+            method: createListQueryBuilder
+      sorting:
+        number: desc
+      fields:
+        date:
+          type: datetime
+          label: sylius.ui.date
+          path: checkoutCompletedAt
+          sortable: checkoutCompletedAt
+          options:
+            format: d-m-Y H:i:s
+        number:
+          type: twig
+          label: sylius.ui.number
+          path: .
+          sortable: ~
+          options:
+            template: "@SyliusAdmin/Order/Grid/Field/number.html.twig"
+      filters:
+        number:
+          type: string
+          label: sylius.ui.number
+        shipping_method:
+          type: entity
+          label: sylius.ui.shipping_method
+          options:
+            fields: [shipments.method]
+          form_options:
+            class: "%sylius.model.shipping_method.class%"
+      actions:
+        item:
+          show:
+            type: show

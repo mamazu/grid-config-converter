@@ -59,32 +59,29 @@ Will be converted to:
 ```php
 <?php
 // order_short.php
-use Sylius\Bundle\GridBundle\AbstractGrid;
-use Sylius\Bundle\GridBundle\Builder\Field;
-use Sylius\Bundle\GridBundle\Builder\Filter;
+declare (strict_types=1);
+use Sylius\Component\Grid\Attribute\AsGrid;
+use Sylius\Bundle\GridBundle\Builder\Filter\Filter;
+use Sylius\Bundle\GridBundle\Builder\Field\Field;
 use Sylius\Bundle\GridBundle\Builder\GridBuilderInterface;
-use Sylius\Bundle\GridBundle\Builder\ActionGroup\MainActionGroup;
-use Sylius\Bundle\GridBundle\Builder\ActionGroup\ItemActionGroup;
 use Sylius\Bundle\GridBundle\Builder\ActionGroup\BulkActionGroup;
+use Sylius\Bundle\GridBundle\Config\GridConfig;
+use Sylius\Bundle\GridBundle\Builder\GridBuilder;
+use Sylius\Bundle\GridBundle\Builder\Action\Action;
+use Sylius\Bundle\GridBundle\Builder\Action\ShowAction;
+use Sylius\Bundle\GridBundle\Builder\Action\CreateAction;
+use Sylius\Bundle\GridBundle\Builder\Action\UpdateAction;
+use Sylius\Bundle\GridBundle\Builder\Action\DeleteAction;
 use Sylius\Bundle\GridBundle\Builder\Field\DateTimeField;
 use Sylius\Bundle\GridBundle\Builder\Field\StringField;
 use Sylius\Bundle\GridBundle\Builder\Field\TwigField;
-class SyliusAdminOrder extends AbstractGrid
+#[AsGrid(name: 'sylius_admin_order', resourceClass: '%sylius.model.order.class%')]
+class SyliusAdminOrder
 {
-    public static function getName() : string
-    {
-        return 'sylius_admin_order';
-    }
-    public static function getResourceClass() : string
-    {
-        return '%sylius.model.order.class%';
-    }
-    public function buildGrid(GridBuilderInterface $gridBuilder) : void
+    public function __invoke(GridBuilderInterface $gridBuilder): void
     {
         $gridBuilder
-            ->setDriver('doctrine/orm')
             ->setRepositoryMethod('createListQueryBuilder')
-            ->setDriverOption('class', '%sylius.model.order.class%')
             ->addOrderBy('number', 'desc')
             ->setLimits([
                 30,
@@ -96,7 +93,7 @@ class SyliusAdminOrder extends AbstractGrid
                 ->setLabel('sylius.ui.date')
                 ->setPath('checkoutCompletedAt')
                 ->setSortable(true, 'checkoutCompletedAt')
-                ->setOptions([
+                ->addOptions([
                     'format' => 'd-m-Y H:i:s',
                 ])
             )
@@ -105,9 +102,6 @@ class SyliusAdminOrder extends AbstractGrid
                 ->setLabel('sylius.ui.number')
                 ->setPath('.')
                 ->setSortable(true)
-                ->setOptions([
-                    'template' => '@SyliusAdmin/Order/Grid/Field/number.html.twig',
-                ])
             )
             ->addFilter(
                 Filter::create('number', 'string')
@@ -125,9 +119,7 @@ class SyliusAdminOrder extends AbstractGrid
                     'class' => '%sylius.model.shipping_method.class%',
                 ])
             )
-            ->addActionGroup(
-                ItemActionGroup::create(ShowAction::create())
-            )
+            ->withItemActions(ShowAction::create())
         ;
     }
 }
@@ -139,3 +131,4 @@ class SyliusAdminOrder extends AbstractGrid
 - [x] Check to see if there are options that are unhandled. (try to convert more grids)
 - [x] See if the output of the yaml and the php produces the same grid array after being parsed by Sylius
 - [ ] Maybe try to optimize the code. Currently, it generates a lot of extra use statements
+- [ ] Add an option to convert in a grid mutator
