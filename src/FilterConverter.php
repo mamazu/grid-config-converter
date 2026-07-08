@@ -2,7 +2,6 @@
 
 namespace Mamazu\ConfigConverter;
 
-use PhpParser\Node\Arg;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\StaticCall;
@@ -14,7 +13,7 @@ class FilterConverter
     use CommonConverterTrait;
     use ValueConverterTrait;
 
-    public function convertFilter(Expr $gridBuilder, string $filterName, array $configuration): Expr
+    public function convertFilter(string $filterName, array $configuration): Expr
     {
         $filter = new StaticCall(new Name('Filter'), 'create', [
             $this->convertValue($filterName),
@@ -44,6 +43,6 @@ class FilterConverter
         }
         $this->checkUnconsumedConfiguration('filter', $configuration);
 
-        return new MethodCall($gridBuilder, 'addFilter', [new Arg($filter)]);
+        return $filter;
     }
 }

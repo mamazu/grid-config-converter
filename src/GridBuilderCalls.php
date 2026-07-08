@@ -60,17 +60,21 @@ class GridBuilderCalls
 
         // Handle the fields
         if (array_key_exists('fields', $gridConfiguration)) {
+            $fields = [];
             foreach ($gridConfiguration['fields'] as $fieldName => $fieldConfig) {
-                $gridBuilder = $this->fieldConverter->convertField($gridBuilder, $fieldName, $fieldConfig);
+                $fields[] = new Arg($this->fieldConverter->convertField($fieldName, $fieldConfig));
             }
+            $gridBuilder = new MethodCall($gridBuilder, 'withFields', $fields);
             unset($gridConfiguration['fields']);
         }
 
         // Handle filters
         if (array_key_exists('filters', $gridConfiguration)) {
+            $filters = [];
             foreach ($gridConfiguration['filters'] as $filterName => $filterConfig) {
-                $gridBuilder = $this->filterConverter->convertFilter($gridBuilder, $filterName, $filterConfig);
+                $filters[] = new Arg($this->filterConverter->convertFilter($filterName, $filterConfig));
             }
+            $gridBuilder = new MethodCall($gridBuilder, 'withFilters', $filters);
             unset($gridConfiguration['filters']);
         }
 
