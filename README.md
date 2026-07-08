@@ -88,26 +88,22 @@ class SyliusAdminOrder
                 12,
                 48,
             ])
-            ->addField(
+            ->withFields(
                 DateTimeField::create('date')
                 ->setLabel('sylius.ui.date')
                 ->setPath('checkoutCompletedAt')
                 ->setSortable(true, 'checkoutCompletedAt')
                 ->addOptions([
                     'format' => 'd-m-Y H:i:s',
-                ])
-            )
-            ->addField(
+                ]),
                 TwigField::create('number', '@SyliusAdmin/Order/Grid/Field/number.html.twig')
                 ->setLabel('sylius.ui.number')
                 ->setPath('.')
                 ->setSortable(true)
             )
-            ->addFilter(
+            ->withFilters(
                 Filter::create('number', 'string')
-                ->setLabel('sylius.ui.number')
-            )
-            ->addFilter(
+                ->setLabel('sylius.ui.number'),
                 Filter::create('shipping_method', 'entity')
                 ->setLabel('sylius.ui.shipping_method')
                 ->setOptions([

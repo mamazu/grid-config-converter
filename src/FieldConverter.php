@@ -2,7 +2,6 @@
 
 namespace Mamazu\ConfigConverter;
 
-use PhpParser\Node\Arg;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\ConstFetch;
 use PhpParser\Node\Expr\MethodCall;
@@ -15,7 +14,7 @@ class FieldConverter
     use CommonConverterTrait;
     use ValueConverterTrait;
 
-    public function convertField(Expr $gridBuilder, string $fieldName, array $fieldConfig): Expr
+    public function convertField(string $fieldName, array $fieldConfig): Expr
     {
         $field = $this->createField($fieldConfig, $fieldName);
         unset($fieldConfig['type']);
@@ -61,7 +60,7 @@ class FieldConverter
 
         $this->checkUnconsumedConfiguration('fields', $fieldConfig);
 
-        return new MethodCall($gridBuilder, 'addField', [new Arg($field)]);
+        return $field;
     }
 
     private function createField(array $fieldConfig, string $fieldName): Expr
