@@ -12,6 +12,7 @@ if (count($argv) < 2) {
     echo "\t<file to convert>: must be in the yaml / yml format\n";
     echo "\t[grid namespace]: (optional) Namespace of the grid class that is generated";
     echo "\t[--output-directory <path>]: (optional) Save the file in directory";
+    echo "\t[--mutator]: (optional) Generate a grid mutator class instead of a grid builder";
     echo "\t[--functional]: (optional) Generating the functional version of it";
     echo "\t[-q]: (optional) Quiet";
     echo "\n\n";
@@ -31,6 +32,10 @@ if (isset($argv[2])) {
 
 if (in_array('-q', $argv, true)) {
     $configConverter->makeQuiet();
+}
+
+if (in_array('--mutator', $argv, true)) {
+    $configConverter->setMutator();
 }
 
 if (in_array('--functional', $argv, true)) {

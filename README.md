@@ -4,7 +4,7 @@ Converts a yaml configuration file from the [SyliusGridBundle](https://github.co
 ## How to use:
 * Clone the repository
 * `composer install`
-* `bin/config-converter <path> [namespace] [--functional] [--output-directory <path>] [-q]`
+* `bin/config-converter <path> [namespace] [--functional] [--mutator] [--output-directory <path>] [-q]`
 
 This will print the generated code out to the screen and produce a file that contains the new configuration.
 
@@ -121,10 +121,50 @@ class SyliusAdminOrder
 }
 ```
 
+## Grid mutators
+
+Use the `--mutator` flag to generate a [grid mutator](https://github.com/Sylius/SyliusGridBundle/blob/1.16/tests/Application/src/BoardGameBlog/Infrastructure/Sylius/Grid/Mutator/SortByNameBookGridMutator.php) class instead of a grid builder. This is useful when you need to override specific parts of an existing grid (e.g., disabling a field).
+
+```yaml
+# mutator_grid.yaml
+sylius_grid:
+    grids:
+        sylius_admin_product:
+            fields:
+                image:
+                    enabled: false
+```
+
+```bash
+bin/config-converter mutator_grid.yaml "App\Grid\Mutator" --mutator
+```
+
+Will generate:
+
+```php
+<?php
+declare (strict_types=1);
+namespace App\Grid\Mutator;
+
+use Sylius\Component\Grid\Attribute\AsGridMutator;
+use Sylius\Component\Grid\Mutator\GridMutatorInterface;
+use Sylius\Bundle\GridBundle\Builder\GridBuilderInterface;
+#[AsGridMutator(grid: 'sylius_admin_product')]
+class SyliusAdminProductGridMutator implements GridMutatorInterface
+{
+    public function __invoke(GridBuilderInterface $gridBuilder): void
+    {
+        $gridBuilder
+            ->removeField('image')
+        ;
+    }
+}
+```
+
 ## Todo
 
 - [x] Check if the output even works.
 - [x] Check to see if there are options that are unhandled. (try to convert more grids)
 - [x] See if the output of the yaml and the php produces the same grid array after being parsed by Sylius
 - [ ] Maybe try to optimize the code. Currently, it generates a lot of extra use statements
-- [ ] Add an option to convert in a grid mutator
+- [x] Add an option to convert in a grid mutator

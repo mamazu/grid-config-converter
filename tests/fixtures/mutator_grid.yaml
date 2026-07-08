@@ -1,0 +1,9 @@
+sylius_grid:
+    grids:
+        sylius_admin_product:
+            fields:
+                image:
+                    enabled: false
+            filters:
+                date:
+                    enabled: false
