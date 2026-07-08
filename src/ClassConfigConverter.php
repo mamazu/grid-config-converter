@@ -33,6 +33,8 @@ use Sylius\Bundle\GridBundle\Builder\GridBuilder;
 use Sylius\Bundle\GridBundle\Builder\GridBuilderInterface;
 use Sylius\Bundle\GridBundle\Config\GridConfig;
 use Sylius\Component\Grid\Attribute\AsGrid;
+use Sylius\Component\Grid\Attribute\AsGridMutator;
+use Sylius\Component\Grid\Mutator\GridMutatorInterface;
 use Symfony\Component\Yaml\Yaml;
 
 class ClassConfigConverter
@@ -40,6 +42,7 @@ class ClassConfigConverter
     const NO_CLASS = 'To be replaced with the correct class.';
     private ?string $namespace = null;
     private bool $functional = false;
+    private bool $mutator = false;
     private bool $verbose = true;
     private CodeOutputter $codeOutputter;
     private GridBuilderCalls $gridBuilder;
@@ -58,6 +61,11 @@ class ClassConfigConverter
     public function makeQuiet(): void
     {
         $this->verbose = false;
+    }
+
+    public function setMutator(): void
+    {
+        $this->mutator = true;
     }
 
     public function convert(string $fileName, string $outputDirectory): void
@@ -86,7 +94,11 @@ class ClassConfigConverter
         foreach ($allGrids as $gridName => $gridConfiguration) {
             echo "************* PROCESS GRID $gridName *************" . PHP_EOL;
             try {
-                [$className, $phpCode] = $this->handleGrid($gridName, $gridConfiguration);
+                if ($this->mutator) {
+                    [$className, $phpCode] = $this->handleGridMutator($gridName, $gridConfiguration);
+                } else {
+                    [$className, $phpCode] = $this->handleGrid($gridName, $gridConfiguration);
+                }
             } catch (\Throwable $e) {
                 printf('EXCEPTION "%s" on grid "%s": %s', get_class($e), $gridName, $e->getMessage());
                 continue;
@@ -217,6 +229,99 @@ class ClassConfigConverter
                 ],
             ])
         );
+    }
+
+    public function handleGridMutator(string $gridName, array $gridConfiguration): array
+    {
+        $phpNodes = [
+            new Node\Stmt\Declare_([
+                new Node\DeclareItem(new Identifier('strict_types'), new Node\Scalar\Int_(1))
+            ]),
+        ];
+        if ($this->namespace) {
+            $phpNodes[] = new Node\Stmt\Namespace_(new Name($this->namespace));
+        }
+        $phpNodes = array_merge($phpNodes, $this->generateUseStatements([
+            AsGridMutator::class,
+            GridMutatorInterface::class,
+            GridBuilderInterface::class,
+        ]));
+
+        $className = ucfirst(preg_replace_callback('#_\w#', static fn($a) => strtoupper($a[0][1]), $gridName)) . 'GridMutator';
+
+        $methodStmts = array_merge(
+            $this->convertRemovals('removeField', $gridConfiguration['fields'] ?? []),
+            $this->convertRemovals('removeFilter', $gridConfiguration['filters'] ?? []),
+        );
+
+        foreach (($gridConfiguration['actions'] ?? []) as $group => $actions) {
+            if (!is_array($actions)) {
+                continue;
+            }
+            $methodStmts = array_merge(
+                $methodStmts,
+                $this->convertRemovals('removeAction', $actions, [$group])
+            );
+        }
+
+        $topLevelFields = array_diff_key(
+            $gridConfiguration,
+            array_flip(['driver', 'extends', 'sorting', 'limits', 'fields', 'filters', 'actions'])
+        );
+        $methodStmts = array_merge(
+            $methodStmts,
+            $this->convertRemovals('removeField', $topLevelFields)
+        );
+
+        $phpNodes[] = new Node\AttributeGroup([
+            new Node\Attribute(new Name('AsGridMutator'), [
+                new Node\Arg(new String_($gridName), name: new Identifier('grid')),
+            ]),
+        ]);
+
+        $phpNodes[] = new Class_(
+            new Identifier($className),
+            [
+                'implements' => [new Name('GridMutatorInterface')],
+                'stmts' => [
+                    new ClassMethod(
+                        new Identifier('__invoke'),
+                        [
+                            'flags' => Modifiers::PUBLIC,
+                            'returnType' => new Identifier('void'),
+                            'params' => [
+                                new Param(
+                                    var: new Variable('gridBuilder'),
+                                    type: new Name('GridBuilderInterface'),
+                                ),
+                            ],
+                            'stmts' => $methodStmts,
+                        ]
+                    ),
+                ],
+            ]
+        );
+
+        return [$className, $phpNodes];
+    }
+
+    private function convertRemovals(string $method, array $items, array $extraArgs = []): array
+    {
+        $stmts = [];
+        foreach ($items as $name => $config) {
+            if (isset($config['enabled']) && $config['enabled'] === false) {
+                $args = [new String_($name)];
+                foreach ($extraArgs as $extraArg) {
+                    $args[] = new String_($extraArg);
+                }
+                $stmts[] = new Expression(new Expr\MethodCall(
+                    new Variable('gridBuilder'),
+                    $method,
+                    $args
+                ));
+            }
+        }
+        return $stmts;
     }
 
     private function generateUseStatements(array $useStatement): array
